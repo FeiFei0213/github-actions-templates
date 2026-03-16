@@ -1,0 +1,43 @@
+name: Python PR Auto-Review (Reusable)
+
+on:
+  workflow_call:
+    secrets:
+      GLM_API_KEY:
+        required: true
+
+jobs:
+  pr-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout template repo scripts
+        uses: actions/checkout@v4
+        with:
+          repository: FeiFei0213/github-actions-templates
+          path: _review_scripts
+
+      - name: Checkout target repo (PR branch)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: _target_repo
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+        working-directory: _review_scripts
+
+      - name: Run PR Review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GLM_API_KEY: ${{ secrets.GLM_API_KEY }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          TARGET_REPO_PATH: ${{ github.workspace }}/_target_repo
+        run: python -m scripts.pr_review.main
+        working-directory: _review_scripts

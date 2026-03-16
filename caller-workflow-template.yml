@@ -1,0 +1,18 @@
+# 复制此文件到你的 Python 仓库：.github/workflows/pr-review.yml
+# 在仓库 Settings → Secrets → Actions 中添加：GLM_API_KEY
+
+name: PR Auto-Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    uses: FeiFei0213/github-actions-templates/.github/workflows/python-pr-review.yml@main
+    secrets:
+      GLM_API_KEY: ${{ secrets.GLM_API_KEY }}
